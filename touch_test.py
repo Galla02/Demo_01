@@ -24,7 +24,7 @@ class DrawingApp(QMainWindow):
         self.min_pen_width = 5
         self.pen_color = QColor(0, 0, 180)
         self.timer = QTimer(self)
-        self.timer.timeout.connect(self.follow_mouse)
+        self.timer.timeout.connect(self.follow_touch)  # 改为 follow_touch
         self.follow_start_time = QTime()
 
         self.paths = []
@@ -84,6 +84,19 @@ class DrawingApp(QMainWindow):
             self.timer.start(9)
 
             self.loop_timer.stop()
+
+    def follow_touch(self):
+        """跟随触控点的逻辑"""
+        if self.following:
+            elapsed = self.follow_start_time.elapsed() / 1000.0  # 获取经过的时间（秒）
+            if elapsed > 1.0:  # 如果超过 1 秒，停止跟随
+                self.following = False
+                self.timer.stop()
+                return
+
+            # 逐渐减小笔宽
+            self.pen_width = max(self.min_pen_width, self.End_pen_width - elapsed * 10)
+            self.update()
 
     def loop_function(self, pos=None):
         if pos is None:
